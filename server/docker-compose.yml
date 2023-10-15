@@ -1,0 +1,43 @@
+version: '3'
+services:
+  udp-nginx:
+    container_name: udp-nginx-proxy
+    image: nginx:1.21.5-alpine
+    ports:
+      - "162:162/udp"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - udp-node-1
+      - udp-node-2
+    networks:
+      - mynet
+
+  udp-node-1:
+    container_name: udp-node-server-1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:162/udp"
+    environment:
+      PORT: 5000
+    networks:
+      - mynet
+
+  udp-node-2:
+    container_name: udp-node-server-2
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5001:162/udp"
+    environment:
+      PORT: 5001
+    networks:
+      - mynet
+
+networks:
+  mynet:
+    driver: bridge
+    external: true
